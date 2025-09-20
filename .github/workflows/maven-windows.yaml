@@ -27,7 +27,7 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          submodules: recursive
 
       - uses: actions/setup-java@v5
         with:
@@ -45,6 +45,7 @@ jobs:
 
       - name: Build with Maven
         run: |
+          $Env:SENZING_PATH = "$Env:USERPROFILE\senzing"
           mvn clean install -B "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -Pjacoco "-Djacoco.haltOnFailure=false" "-Djacoco.ignoreFailure=true" "-Dsenzing.path=$Env:USERPROFILE\Senzing"
 
       - name: Jacoco Report to PR

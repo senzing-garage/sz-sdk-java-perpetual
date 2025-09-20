@@ -27,7 +27,7 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          submodules: recursive
 
       - uses: actions/setup-java@v5
         with:
@@ -43,12 +43,12 @@ jobs:
         run: |
           SENZING_PATH="${HOME}/senzing"
           {
+            echo "SENZING_PATH=${SENZING_PATH}"
             echo "DYLD_LIBRARY_PATH=${SENZING_PATH}/er/lib:${SENZING_PATH}/er/lib/macos"
           } >> "$GITHUB_ENV"
 
       - name: Build with Maven
         run: |
-          # temp update broken file permissions
           mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Pjacoco -Djacoco.haltOnFailure=false -Djacoco.ignoreFailure=true
 
       - name: Jacoco Report to PR

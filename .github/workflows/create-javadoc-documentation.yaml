@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - uses: actions/setup-java@v5
         with:
@@ -39,6 +41,8 @@ jobs:
           senzingsdk-version: ${{ matrix.senzingsdk-version }}
 
       - name: Build with Maven
+        env:
+          SENZING_PATH: "/opt/senzing"
         run: |
           mvn clean install -Dsenzing.support.dir="/opt/senzing/data" -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
           mvn javadoc:javadoc -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn

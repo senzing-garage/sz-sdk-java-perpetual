@@ -90,7 +90,8 @@
     "XLITERATOR",
     "Dtest",
     "CONFIGPATH",
-    "szerrors"
+    "szerrors",
+    "Reinitializer"
   ],
   "ignorePaths": [".git/**", "**/test/**", "Makefile", "pom.xml"]
 }

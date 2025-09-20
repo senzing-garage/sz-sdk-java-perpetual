@@ -1,0 +1,3 @@
+[submodule "sz-sdk-java"]
+	path = sz-sdk-java
+	url = https://github.com/senzing-garage/sz-sdk-java.git

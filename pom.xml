@@ -4,9 +4,12 @@
   <groupId>com.senzing</groupId>
   <artifactId>sz-sdk-java-perpetual</artifactId>
   <packaging>jar</packaging>
-  <version>4.1.0</version>
-  <name>Senzing Java SDK</name>
-  <description>The Java SDK for Senzing.  This calls through to the native Senzing SDK via JNI.</description>
+  <version>0.1.0</version>
+  <name>Senzing Java Core Perpetual SDK</name>
+  <description>
+    The Java Core Perpetual SDK provides enhancements over the Java Core SDK for usage
+    in a long-running multi-threaded server-side process.
+  </description>
   <url>http://github.com/senzing-garage/sz-sdk-java-perpetual</url>
   <licenses>
     <license>
@@ -26,32 +29,8 @@
   </distributionManagement>
   <developers>
     <developer>
-      <name>Jae Adams</name>
-      <email>jae@senzing.com</email>
-      <organization>Senzing</organization>
-      <organizationUrl>http://www.senzing.com</organizationUrl>
-    </developer>
-    <developer>
-      <name>Jeff Adair</name>
-      <email>jeffadair@senzing.com</email>
-      <organization>Senzing</organization>
-      <organizationUrl>http://www.senzing.com</organizationUrl>
-    </developer>
-    <developer>
-      <name>Brian Macy</name>
-      <email>brian@senzing.com</email>
-      <organization>Senzing</organization>
-      <organizationUrl>http://www.senzing.com</organizationUrl>
-    </developer>
-    <developer>
       <name>Barry M. Caceres</name>
       <email>barry@senzing.com</email>
-      <organization>Senzing</organization>
-      <organizationUrl>http://www.senzing.com</organizationUrl>
-    </developer>
-    <developer>
-      <name>Oskar Thorbjornsson</name>
-      <email>oskar@senzing.com</email>
       <organization>Senzing</organization>
       <organizationUrl>http://www.senzing.com</organizationUrl>
     </developer>
@@ -61,23 +40,36 @@
     <developerConnection>scm:git:ssh://github.com:senzing-garage/sz-sdk-java-perpetual.git</developerConnection>
     <url>http://github.com/senzing-garage/sz-sdk-java-perpetual/tree/main</url>
   </scm>
+  <properties>
+    <gpg.skip>true</gpg.skip> <!-- skip GPG unless release profile -->
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+  
   <dependencies>
+    <dependency>
+        <groupId>com.senzing</groupId>
+        <artifactId>sz-sdk</artifactId>
+        <version>4.1.0</version>
+        <scope>system</scope>
+        <systemPath>${SENZING_PATH}/er/sdk/java/sz-sdk.jar</systemPath>
+    </dependency>
     <dependency>
       <groupId>com.senzing</groupId>
       <artifactId>senzing-commons</artifactId>
-      <version>4.0.0-beta.1.2</version>
-      <scope>test</scope>
+      <version>4.0.0-beta.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>
       <version>1.1.4</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.13.4</version>
+      <version>5.12.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -101,13 +93,13 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
-      <version>1.14.1</version>
+      <version>1.14.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.50.3.0</version>
+      <version>3.49.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -123,28 +115,16 @@
        <scope>test</scope>
   </dependency>
   </dependencies>
-  <properties>
-    <gpg.skip>true</gpg.skip> <!-- skip GPG unless release profile -->
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
   <build>
     <finalName>${project.artifactId}</finalName>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.7.1</version>
+      </extension>
+    </extensions>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
-        <configuration>
-          <release>17</release>
-          <compilerArgs>
-            <arg>-Xlint:unchecked</arg>
-            <arg>-Xlint:deprecation</arg>
-          </compilerArgs>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -181,6 +161,18 @@
         <version>3.6.1</version>
         <executions>
           <execution>
+            <id>add-sdk-tests</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>sz-sdk-java/src/test/java</source>
+              </sources>
+            </configuration>  
+          </execution>
+          <execution>
             <id>add-demos</id>
             <phase>generate-test-sources</phase>
             <goals>
@@ -196,6 +188,41 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireUpperBoundDeps/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
+        <configuration>
+          <compilerArgs>
+            <arg>-Xlint:unchecked</arg>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
+          <testExcludes>
+            <testExclude>com/senzing/sdk/*.java</testExclude>
+            <testExclude>com/senzing/sdk/core/Sz*Test.java</testExclude>
+            <testExclude>com/senzing/sdk/core/Sz*Tests.java</testExclude>
+            <testExclude>com/senzing/sdk/core/Utilities.java</testExclude>
+          </testExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.4</version>
         <configuration>
@@ -205,6 +232,12 @@
             <include>**/*Tests.java</include>
             <include>**/*Demo.java</include>
           </includes>
+          <excludes>
+            <exclude>com/senzing/sdk/core/*.java</exclude>
+            <exclude>com/senzing/sdk/*Demo.java</exclude>
+            <exclude>com/senzing/sdk/*Test.java</exclude>
+            <exclude>com/senzing/sdk/*Tests.java</exclude>
+          </excludes>
           <systemPropertyVariables>
             <project.build.directory>${project.build.directory}</project.build.directory>
           </systemPropertyVariables>
@@ -235,20 +268,29 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.11.3</version>
+        <configuration>
+          <links>
+            <link>https://garage.senzing.com/sz-sdk-java/</link>
+          </links>
+        </configuration>
+        <version>3.11.2</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
             <goals>
               <goal>jar</goal>
             </goals>
+            <configuration>
+              <sourceFileExcludes>
+              </sourceFileExcludes>
+            </configuration>
           </execution>
         </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.2.8</version>
+        <version>3.2.7</version>
         <executions>
           <execution>
             <id>sign-artifacts</id>
@@ -396,9 +438,7 @@
           <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
-              <sourcepath>src/main/java${path.separator}${project.build.directory}/doc-includes/</sourcepath>
-              <subpackages>com.senzing.sdk:com.senzing.sdk.core</subpackages>
-              <additionalOptions>--snippet-path ${project.basedir}/src/demo/java${path.separator}${project.build.directory}/doc-includes/</additionalOptions>
+              <additionalOptions>--snippet-path ${project.basedir}/src/demo/java</additionalOptions>
             </configuration>
           </plugin>
         </plugins>
